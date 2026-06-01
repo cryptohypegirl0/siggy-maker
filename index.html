@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Siggy Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="phone-shell">
+    <header class="hero">
+      <div>
+        <h1 id="appTitle">Siggy Maker</h1>
+      </div>
+      <div class="hero-actions">
+        <button id="langToggle" class="pill-toggle" type="button" aria-label="Switch language">EN</button>
+        <button id="resetGame" class="round-button" type="button" title="Reset">↻</button>
+      </div>
+    </header>
+
+    <section id="startScreen" class="card start-card">
+      <div class="avatar-frame large">
+        <img id="startAvatar" src="./assets/siggy_kitten.png" alt="Siggy kitten" />
+      </div>
+      <h2 id="startTitle"></h2>
+      <p id="startCopy"></p>
+      <button id="startGame" class="primary-button" type="button"></button>
+    </section>
+
+    <section id="gameScreen" hidden>
+      <section class="card siggy-card">
+        <div class="siggy-top">
+          <div class="avatar-frame">
+            <img id="siggyAvatar" src="./assets/siggy_kitten.png" alt="Current Siggy avatar" />
+          </div>
+          <div>
+            <h2 id="siggyName"></h2>
+            <p id="phaseText"></p>
+          </div>
+          <div class="turn-pill"><span id="turnText">0 / 24</span></div>
+        </div>
+        <div id="statsList" class="stats-list"></div>
+      </section>
+
+      <section class="card action-card">
+        <div class="section-head">
+          <h2 id="actionTitle"></h2>
+          <span id="actionHint"></span>
+        </div>
+        <div id="actionGrid" class="choice-grid"></div>
+      </section>
+
+      <section class="card item-card">
+        <div class="section-head">
+          <h2 id="itemTitle"></h2>
+          <span id="catnipCount"></span>
+        </div>
+        <div id="itemGrid" class="choice-grid"></div>
+      </section>
+
+      <section class="card preview-card">
+        <div class="section-head">
+          <h2 id="previewTitle"></h2>
+          <span id="endingHint"></span>
+        </div>
+        <div id="deltaPreview" class="delta-preview"></div>
+        <div id="aiBubble" class="ai-bubble">
+          <strong>Ritual AI:</strong>
+          <span id="aiText"></span>
+        </div>
+        <button id="confirmTurn" class="confirm-button" type="button" disabled></button>
+      </section>
+
+      <section class="card log-card">
+        <div class="section-head">
+          <h2 id="logTitle"></h2>
+          <span id="logHint"></span>
+        </div>
+        <ol id="logList" class="log-list"></ol>
+      </section>
+    </section>
+
+    <section id="ritualModal" class="modal-backdrop" hidden>
+      <div class="modal-card">
+        <h2 id="ritualTitle"></h2>
+        <p id="ritualCopy"></p>
+        <div class="modal-actions">
+          <button id="approveRitual" class="primary-button" type="button"></button>
+          <button id="rejectRitual" class="dark-button" type="button"></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="endingScreen" class="card ending-card" hidden>
+      <img id="endingImage" class="ending-image" src="./assets/ending_08_hermit.png" alt="Ending illustration" />
+      <div id="endingBadge" class="ending-badge">Ending</div>
+      <h2 id="endingTitle"></h2>
+      <p id="endingDesc"></p>
+      <div id="endingStats" class="stats-list"></div>
+      <button id="mintNft" class="primary-button" type="button"></button>
+      <button id="playAgain" class="secondary-button" type="button"></button>
+      <div id="mintToast" class="tx-box" hidden></div>
+    </section>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
