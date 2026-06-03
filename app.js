@@ -13,6 +13,8 @@ const COPY = {
     startButton: "지갑 연결하고 시작",
     connectingWallet: "MetaMask 연결 중...",
     walletConnected: (address) => `지갑 연결 완료: ${address.slice(0, 6)}...${address.slice(-4)}`,
+    connectedWallet: "연결된 지갑",
+    disconnectWallet: "연결 해제",
     siggyName: "시기",
     actionTitle: "메인 행동 선택",
     actionHint: "하나만 선택",
@@ -44,7 +46,7 @@ const COPY = {
     txPreparing: "기록 트랜잭션을 준비 중입니다...",
     contractMissing: "CONTRACT_ADDRESS가 아직 설정되지 않았습니다.",
     networkGuide: "Ritual Chain으로 전환해주세요. RPC: https://rpc.ritualfoundation.org / Chain ID: 1979 / Symbol: RITUAL / Explorer: https://explorer.ritualfoundation.org",
-    txSent: (hash) => `Ritual Chain에 기록했어요: ${hash}`,
+    txSent: (hash) => `Ritual Chain에 기록했어요:\n${hash}`,
     txFailed: (message) => `기록 실패: ${message}`,
   },
   en: {
@@ -54,6 +56,8 @@ const COPY = {
     startButton: "Connect Wallet and Start",
     connectingWallet: "Connecting MetaMask...",
     walletConnected: (address) => `Wallet connected: ${address.slice(0, 6)}...${address.slice(-4)}`,
+    connectedWallet: "Connected wallet",
+    disconnectWallet: "Disconnect",
     siggyName: "Siggy",
     actionTitle: "Choose Action",
     actionHint: "Pick one",
@@ -85,7 +89,7 @@ const COPY = {
     txPreparing: "Preparing record transaction...",
     contractMissing: "CONTRACT_ADDRESS is not set yet.",
     networkGuide: "Please switch to Ritual Chain. RPC: https://rpc.ritualfoundation.org / Chain ID: 1979 / Symbol: RITUAL / Explorer: https://explorer.ritualfoundation.org",
-    txSent: (hash) => `Recorded on Ritual Chain: ${hash}`,
+    txSent: (hash) => `Recorded on Ritual Chain:\n${hash}`,
     txFailed: (message) => `Record failed: ${message}`,
   },
 };
@@ -198,6 +202,11 @@ function clamp(value) {
 
 function labelFor(source) {
   return source.label[state.lang];
+}
+
+function shortAddress(address) {
+  if (!address) return "";
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
 function selectedAction() {
@@ -378,6 +387,18 @@ function renderEnding() {
   renderStats(document.getElementById("endingStats"), state.stats);
 }
 
+function renderWalletBar() {
+  const walletBar = document.getElementById("walletBar");
+  const walletLabel = document.getElementById("walletLabel");
+  const disconnectButton = document.getElementById("disconnectWallet");
+
+  walletBar.hidden = !state.walletAddress;
+  walletLabel.textContent = state.walletAddress
+    ? `${t("connectedWallet")}: ${shortAddress(state.walletAddress)}`
+    : "";
+  disconnectButton.textContent = t("disconnectWallet");
+}
+
 function utf8ToHex(value) {
   const bytes = new TextEncoder().encode(value);
   return `0x${[...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("")}`;
@@ -485,6 +506,7 @@ function render() {
   renderChoices();
   renderDeltaPreview();
   renderLog();
+  renderWalletBar();
   renderEnding();
   saveState();
 }
@@ -547,7 +569,26 @@ function resetGame(keepLang = true) {
   render();
 }
 
+async function disconnectWallet() {
+  if (window.ethereum?.request) {
+    try {
+      await window.ethereum.request({
+        method: "wallet_revokePermissions",
+        params: [{ eth_accounts: {} }],
+      });
+    } catch (error) {
+      console.warn(error?.message || error);
+    }
+  }
+
+  const lang = state.lang;
+  state = structuredClone(INITIAL_STATE);
+  state.lang = lang;
+  render();
+}
+
 document.getElementById("startGame").addEventListener("click", startGame);
+document.getElementById("disconnectWallet").addEventListener("click", disconnectWallet);
 document.getElementById("confirmTurn").addEventListener("click", processTurn);
 document.getElementById("resetGame").addEventListener("click", () => resetGame());
 document.getElementById("approveRitual").addEventListener("click", () => processRitualChoice(true));
