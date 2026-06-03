@@ -11,6 +11,8 @@ const COPY = {
     startTitle: "시기를 키워볼까요?",
     startCopy: "24턴 동안 행동과 아이템을 골라 시기의 성격과 엔딩을 만들어주세요.",
     startButton: "지갑 연결하고 시작",
+    connectingWallet: "MetaMask 연결 중...",
+    walletConnected: (address) => `지갑 연결 완료: ${address.slice(0, 6)}...${address.slice(-4)}`,
     siggyName: "시기",
     actionTitle: "메인 행동 선택",
     actionHint: "하나만 선택",
@@ -50,6 +52,8 @@ const COPY = {
     startTitle: "Raise your Siggy?",
     startCopy: "Choose actions and items for 24 turns to shape Siggy's personality and ending.",
     startButton: "Connect Wallet and Start",
+    connectingWallet: "Connecting MetaMask...",
+    walletConnected: (address) => `Wallet connected: ${address.slice(0, 6)}...${address.slice(-4)}`,
     siggyName: "Siggy",
     actionTitle: "Choose Action",
     actionHint: "Pick one",
@@ -94,7 +98,7 @@ const RITUAL_CHAIN = {
   blockExplorerUrls: ["https://explorer.ritualfoundation.org"],
 };
 
-const CONTRACT_ADDRESS = "여기에_배포된_주소_입력";
+const CONTRACT_ADDRESS = "0xe05184B43A588e357Ea6aB90A4910a997083f455";
 
 function isContractAddressSet() {
   return /^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS);
@@ -388,8 +392,25 @@ async function ensureRitualChain() {
       params: [{ chainId: RITUAL_CHAIN.chainId }],
     });
   } catch (error) {
+    if (error?.code === 4902) {
+      try {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [RITUAL_CHAIN],
+        });
+        return;
+      } catch {
+        throw new Error(t("networkGuide"));
+      }
+    }
     throw new Error(t("networkGuide"));
   }
+}
+
+function setStartStatus(message = "") {
+  const status = document.getElementById("startStatus");
+  status.hidden = !message;
+  status.textContent = message;
 }
 
 async function recordEndingOnRitual() {
@@ -496,17 +517,25 @@ function processRitualChoice(approved) {
 }
 
 async function startGame() {
+  const button = document.getElementById("startGame");
+
   try {
-    if (window.ethereum) {
-      await ensureRitualChain();
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      state.walletAddress = accounts[0] || null;
-    }
-  } catch (error) {
-    console.warn(error?.message || error);
-  } finally {
+    setStartStatus(t("connectingWallet"));
+    button.disabled = true;
+
+    await ensureRitualChain();
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    state.walletAddress = accounts[0] || null;
+    if (!state.walletAddress) throw new Error(t("walletMissing"));
+
+    setStartStatus(t("walletConnected")(state.walletAddress));
+    await new Promise((resolve) => setTimeout(resolve, 450));
     state.screen = "game";
     render();
+  } catch (error) {
+    setStartStatus(error?.message || t("walletMissing"));
+  } finally {
+    button.disabled = false;
   }
 }
 
