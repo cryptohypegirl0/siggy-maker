@@ -16,6 +16,10 @@
         <h1 id="appTitle">Siggy Maker</h1>
       </div>
       <div class="hero-actions">
+        <div id="walletBar" class="wallet-bar" hidden>
+          <span id="walletLabel"></span>
+          <button id="disconnectWallet" class="wallet-disconnect" type="button"></button>
+        </div>
         <button id="langToggle" class="pill-toggle" type="button" aria-label="Switch language">EN</button>
         <button id="resetGame" class="round-button" type="button" title="Reset">↻</button>
       </div>
@@ -42,10 +46,6 @@
             <p id="phaseText"></p>
           </div>
           <div class="turn-pill"><span id="turnText">0 / 24</span></div>
-        </div>
-        <div id="walletBar" class="wallet-bar">
-          <span id="walletLabel"></span>
-          <button id="disconnectWallet" class="wallet-disconnect" type="button"></button>
         </div>
         <div id="statsList" class="stats-list"></div>
       </section>
